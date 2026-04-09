@@ -16,6 +16,7 @@ async def get_all_posts(db: Annotated[AsyncSession, Depends(get_db)]):
     result =await db.execute(
         select(models.Post)
         .options(selectinload(models.Post.author))
+        .order_by(models.Post.date_posted.desc())
     )
     posts = result.scalars().all()
     if not posts:

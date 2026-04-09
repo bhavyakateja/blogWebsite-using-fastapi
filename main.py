@@ -58,7 +58,9 @@ async def root_page(request: Request, db: Annotated[AsyncSession, Depends(get_db
     #     "message": "Hello World!"
     # }
     # return f"<h1>{posts[0]['title']}</h1>"
-    result=await db.execute(select(models.Post).options(selectinload(models.Post.author)))
+    result=await db.execute(
+        select(models.Post).options(selectinload(models.Post.author)).order_by(models.Post.date_posted.desc())
+    )
     posts=result.scalars().all()
     return templates.TemplateResponse(
         request, 
@@ -108,6 +110,7 @@ async def user_posts_page(request: Request, user_id: int, db: Annotated[AsyncSes
         select(models.Post)
         .options(selectinload(models.Post.author))
         .where(models.Post.user_id==user_id)
+        .order_by(models.Post.date_posted.desc())
     )
     posts = result.scalars().all()
     if not posts:
